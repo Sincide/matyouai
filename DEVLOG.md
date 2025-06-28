@@ -1230,4 +1230,34 @@ done
 - Automatic repo detection by yay
 - Single failure point
 
-**Status**: Installation completely simplified and made bulletproof. yay handles all package management complexity automatically. Ready for production use on fresh Arch installations. 
+**Status**: Installation completely simplified and made bulletproof. yay handles all package management complexity automatically. Ready for production use on fresh Arch installations.
+
+---
+
+## 2024-12-21 - WALLPAPER SELECTOR KEYBIND: Super+W Quick Access 🎨
+
+**USABILITY**: Added convenient keybind for wallpaper selection directly in Hyprland configuration.
+
+### **Keybind Added** ⌨️
+
+```bash
+# MatYouAI theming
+bind = $mainMod, W, exec, matyouai pick
+```
+
+**Usage:** `Super + W` launches the wallpaper picker
+
+### **User Workflow** 🔄
+
+**Quick theming workflow:**
+1. 🎮 **Super + W** → Opens wallpaper picker (rofi interface)
+2. 🖼️ **Select wallpaper** → Choose from configured directories
+3. 🎨 **Automatic theming** → MatYouAI applies Material You colors
+4. ✨ **Instant results** → Desktop immediately themed
+
+**Integration with other keybinds:**
+- `Super + R` → Application launcher (rofi)
+- `Super + W` → Wallpaper/theme picker (matyouai)
+- `Super + Q` → Terminal (kitty)
+
+**Status**: Wallpaper selector now accessible via Super+W keybind for immediate theming workflow.
