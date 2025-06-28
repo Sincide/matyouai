@@ -1325,3 +1325,392 @@ if "no such file or directory" in error_msg:
 - Visual indicators (❌ ✅) for better UX
 
 **Status**: Users now get helpful warnings like "DEPRECATED SWWW DETECTED!" instead of cryptic error messages.
+
+---
+
+# 🤖 AI INTEGRATION IMPLEMENTATION PLAN - NEXT SESSION
+
+## MISSION: Replace algorithmic color extraction with LLaVA vision model for superior Material You theming
+
+### PHASE 1: OLLAMA SETUP & VALIDATION (30 mins)
+
+#### 1.1 Ollama Service Configuration
+```bash
+# Commands to run:
+sudo systemctl enable ollama --now
+sudo systemctl status ollama
+ollama list  # Check installed models
+```
+
+**Tasks:**
+- [ ] Verify Ollama service is running on system startup
+- [ ] Check if LLaVA model is already installed: `ollama list | grep llava`
+- [ ] If not installed: `ollama pull llava:13b` (or llava:7b for lower RAM)
+- [ ] Test basic functionality: `ollama run llava:13b "describe this"`
+- [ ] Check GPU acceleration: `rocm-smi` (should show GPU activity during inference)
+
+#### 1.2 ROCm Integration Validation
+```bash
+# Verify ROCm setup for AMD GPU acceleration
+rocm-smi
+clinfo | grep -i amd
+```
+
+**Tasks:**
+- [ ] Confirm AMD GPU is detected and accessible
+- [ ] Verify ROCm runtime is properly installed
+- [ ] Test GPU memory allocation for large models
+- [ ] Benchmark inference speed: text-only vs vision models
+
+### PHASE 2: AI MODEL INTEGRATION (45 mins)
+
+#### 2.1 Enhance `ai_models.py`
+**File:** `src/core/ai_models.py`
+
+**Current state:** Basic Ollama client setup, not fully implemented
+**Target:** Complete LLaVA integration with vision capabilities
+
+```python
+# NEW METHODS TO IMPLEMENT:
+
+class OllamaVisionClient:
+    def __init__(self):
+        self.base_url = "http://localhost:11434"
+        self.model_name = "llava:13b"  # or llava:7b
+        self.timeout = 120  # Vision models need more time
+    
+    def analyze_wallpaper_colors(self, image_path: str) -> Dict[str, Any]:
+        """
+        Send wallpaper to LLaVA for Material You color analysis
+        Returns: {
+            'primary': '#color',
+            'secondary': '#color', 
+            'accent': '#color',
+            'surface': '#color',
+            'confidence': 0.95,
+            'reasoning': 'LLaVA explanation'
+        }
+        """
+        
+    def generate_theme_prompt(self, image_path: str) -> str:
+        """
+        Create specialized prompt for Material You color extraction
+        """
+        return """
+        Analyze this wallpaper image for Material You theming.
+        
+        Extract these colors in hex format:
+        1. PRIMARY: Most prominent/dominant color
+        2. SECONDARY: Complementary accent color  
+        3. SURFACE: Background/neutral color
+        4. ON_SURFACE: Text color for surface
+        
+        Rules:
+        - Colors must have sufficient contrast (WCAG AA)
+        - Primary should be vibrant but not overwhelming
+        - Consider both light and dark theme variants
+        - Provide confidence score (0-1)
+        
+        Response format:
+        PRIMARY: #hexcode
+        SECONDARY: #hexcode  
+        SURFACE: #hexcode
+        ON_SURFACE: #hexcode
+        CONFIDENCE: 0.xx
+        REASONING: Brief explanation
+        """
+    
+    def parse_llava_response(self, response: str) -> Dict[str, str]:
+        """
+        Parse LLaVA response into structured color data
+        Handle various response formats and edge cases
+        """
+        
+    def fallback_to_algorithmic(self, image_path: str) -> Dict[str, str]:
+        """
+        Fallback to current color_extractor.py if AI fails
+        """
+```
+
+**Implementation tasks:**
+- [ ] Add proper error handling for Ollama connection failures
+- [ ] Implement image encoding (base64) for API transmission
+- [ ] Add retry logic with exponential backoff
+- [ ] Create response parsing with regex for hex color extraction
+- [ ] Add confidence scoring and validation
+- [ ] Implement fallback to algorithmic extraction
+
+#### 2.2 Update `color_extractor.py`
+**File:** `src/core/color_extractor.py`
+
+**Current:** Pure algorithmic extraction (k-means clustering)
+**Target:** AI-first with algorithmic fallback
+
+```python
+class SmartColorExtractor:
+    def __init__(self, use_ai: bool = True):
+        self.use_ai = use_ai
+        self.ai_client = OllamaVisionClient() if use_ai else None
+        self.algorithmic_extractor = AlgorithmicExtractor()  # Current implementation
+    
+    def extract_colors(self, image_path: str) -> Dict[str, Any]:
+        """
+        Primary extraction method with AI-first approach
+        """
+        if self.use_ai:
+            try:
+                ai_result = self.ai_client.analyze_wallpaper_colors(image_path)
+                if ai_result['confidence'] > 0.7:  # Threshold for AI acceptance
+                    return ai_result
+                else:
+                    logger.warning(f"AI confidence too low: {ai_result['confidence']}")
+            except Exception as e:
+                logger.error(f"AI extraction failed: {e}")
+        
+        # Fallback to algorithmic
+        logger.info("Using algorithmic color extraction")
+        return self.algorithmic_extractor.extract_colors(image_path)
+```
+
+**Tasks:**
+- [ ] Refactor current extraction into separate `AlgorithmicExtractor` class
+- [ ] Implement confidence threshold system
+- [ ] Add performance timing/logging for AI vs algorithmic comparison
+- [ ] Create hybrid approach: AI for primary, algorithmic for validation
+
+### PHASE 3: THEME APPLICATOR INTEGRATION (30 mins)
+
+#### 3.1 Update `theme_applicator.py`
+**File:** `src/core/theme_applicator.py`
+
+**Changes needed:**
+```python
+# ADD TO ThemeApplicator.__init__():
+self.color_extractor = SmartColorExtractor(use_ai=not disable_ai)
+
+# MODIFY apply_theme_from_wallpaper():
+def apply_theme_from_wallpaper(self, wallpaper_path: str, theme_name: str = None, 
+                              use_ai: bool = True, apps_to_theme: List[str] = None):
+    """
+    Enhanced with AI parameter control
+    """
+    # Force algorithmic if --no-ai flag used
+    if hasattr(self, 'disable_ai') and self.disable_ai:
+        use_ai = False
+    
+    # Extract colors with AI/algorithmic choice
+    extraction_result = self.color_extractor.extract_colors(wallpaper_path)
+    
+    # Log which method was used for debugging
+    method = "AI" if extraction_result.get('ai_generated', False) else "Algorithmic"
+    logger.info(f"Color extraction method: {method}")
+```
+
+**Tasks:**
+- [ ] Add AI/algorithmic method tracking in results
+- [ ] Implement performance comparison logging
+- [ ] Add user preference persistence (AI vs algorithmic)
+- [ ] Create cache system for AI results to avoid re-processing same wallpapers
+
+### PHASE 4: CLI ENHANCEMENTS (15 mins)
+
+#### 4.1 Update `scripts/matyouai`
+**New CLI options:**
+```bash
+# Add these argument options:
+parser.add_argument(
+    "--no-ai", 
+    action="store_true",
+    help="Disable AI models, use algorithmic extraction only"
+)
+
+parser.add_argument(
+    "--ai-model",
+    default="llava:13b",
+    choices=["llava:7b", "llava:13b", "llava:34b"],
+    help="LLaVA model to use for vision analysis"
+)
+
+parser.add_argument(
+    "--ai-confidence",
+    type=float,
+    default=0.7,
+    help="Minimum confidence threshold for AI results (0.0-1.0)"
+)
+```
+
+**New commands:**
+```bash
+matyouai test-ai wallpaper.jpg        # Test AI extraction on specific image
+matyouai benchmark wallpaper.jpg      # Compare AI vs algorithmic performance
+matyouai ai-status                    # Check Ollama/LLaVA status
+```
+
+**Tasks:**
+- [ ] Add AI-specific command line options
+- [ ] Implement AI testing and benchmarking commands
+- [ ] Add AI status checking functionality
+- [ ] Update help text and examples
+
+### PHASE 5: TESTING & VALIDATION (30 mins)
+
+#### 5.1 Test Cases to Implement
+**File:** `tests/test_ai_integration.py` (NEW)
+
+```python
+def test_ai_color_extraction():
+    """Test LLaVA color extraction accuracy"""
+    
+def test_ai_fallback_mechanism():
+    """Test fallback when AI fails or confidence is low"""
+    
+def test_performance_comparison():
+    """Benchmark AI vs algorithmic extraction times"""
+    
+def test_ollama_connection():
+    """Test Ollama service connectivity"""
+    
+def test_color_validation():
+    """Test extracted colors meet contrast requirements"""
+```
+
+#### 5.2 Integration Testing
+**Test wallpapers:**
+- [ ] High contrast images (should favor AI)
+- [ ] Low contrast/monochrome images (may favor algorithmic)
+- [ ] Abstract vs photographic images
+- [ ] Different aspect ratios and resolutions
+
+**Performance benchmarks:**
+- [ ] Time comparison: AI vs algorithmic
+- [ ] Memory usage during AI inference
+- [ ] GPU utilization monitoring
+- [ ] Cache hit/miss ratios
+
+### PHASE 6: DOCUMENTATION & CONFIGURATION (15 mins)
+
+#### 6.1 Update Installation Requirements
+**File:** `install.sh`
+```bash
+# Add to package list:
+"ollama"           # AI model server
+"rocm-dev"         # Additional ROCm development packages
+```
+
+#### 6.2 Configuration Files
+**File:** `config/ai_config.yaml` (NEW)
+```yaml
+ai:
+  enabled: true
+  model: "llava:13b"
+  confidence_threshold: 0.7
+  timeout: 120
+  fallback_to_algorithmic: true
+  cache_results: true
+  cache_duration: 7  # days
+
+performance:
+  gpu_memory_limit: "8GB"
+  concurrent_requests: 1
+  benchmark_on_startup: false
+```
+
+#### 6.3 README Updates
+**Add section:**
+```markdown
+## AI-Powered Color Extraction
+
+MatYouAI uses LLaVA (Large Language and Vision Assistant) for intelligent color analysis:
+
+### Setup
+1. Install: `./install.sh` (includes Ollama)
+2. Download model: `ollama pull llava:13b`
+3. Test: `matyouai ai-status`
+
+### Usage
+- Default (AI-first): `matyouai pick`
+- Algorithmic only: `matyouai pick --no-ai`  
+- Test AI: `matyouai test-ai wallpaper.jpg`
+- Benchmark: `matyouai benchmark wallpaper.jpg`
+
+### Requirements
+- AMD GPU with 8GB+ VRAM (for llava:13b)
+- 4GB+ VRAM (for llava:7b)
+- ROCm drivers installed
+```
+
+### PHASE 7: ERROR HANDLING & EDGE CASES (20 mins)
+
+#### 7.1 AI-Specific Error Scenarios
+**Implement handling for:**
+- [ ] Ollama service not running
+- [ ] LLaVA model not installed
+- [ ] GPU memory exhaustion
+- [ ] Network connectivity issues
+- [ ] Malformed AI responses
+- [ ] Timeout during inference
+- [ ] Corrupted/unsupported image formats
+
+#### 7.2 Graceful Degradation
+```python
+# Pattern to implement throughout:
+try:
+    ai_result = self.ai_extraction(image_path)
+    if ai_result.confidence > threshold:
+        return ai_result
+    else:
+        logger.warning("AI confidence low, using algorithmic fallback")
+        return self.algorithmic_extraction(image_path)
+except OllamaConnectionError:
+    logger.error("Ollama not available, using algorithmic extraction")
+    return self.algorithmic_extraction(image_path)
+except Exception as e:
+    logger.error(f"Unexpected AI error: {e}, using algorithmic fallback")
+    return self.algorithmic_extraction(image_path)
+```
+
+### IMPLEMENTATION ORDER (Total: ~3 hours)
+
+1. **CRITICAL PATH (Must complete first):**
+   - Ollama service setup and validation
+   - LLaVA model installation and testing
+   - Basic AI client in `ai_models.py`
+
+2. **CORE FUNCTIONALITY:**
+   - `color_extractor.py` AI integration
+   - `theme_applicator.py` updates
+   - CLI parameter additions
+
+3. **POLISH & VALIDATION:**
+   - Error handling implementation
+   - Test cases and benchmarking
+   - Documentation updates
+
+### SUCCESS CRITERIA
+
+**Minimum Viable Product:**
+- [ ] AI color extraction working for common wallpaper formats
+- [ ] Fallback to algorithmic when AI fails
+- [ ] Performance acceptable (< 30 seconds per wallpaper)
+- [ ] No regression in existing functionality
+
+**Stretch Goals:**
+- [ ] Sub-10 second AI inference times
+- [ ] 90%+ user preference for AI vs algorithmic results
+- [ ] Intelligent caching system
+- [ ] Advanced prompt engineering for better color accuracy
+
+### DEBUGGING COMMANDS FOR SESSION
+
+```bash
+# Essential debugging commands to have ready:
+systemctl status ollama
+ollama list
+ollama run llava:13b "test"
+rocm-smi
+matyouai ai-status
+matyouai test-ai dotfiles/wallpapers/dark_space.jpg --verbose
+journalctl -u ollama -f  # Live log monitoring
+```
+
+**This plan leaves nothing to chance - every file, every method, every test case is specified. Execute in order for guaranteed success.**
