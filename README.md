@@ -34,16 +34,14 @@ MatYouAI is an intelligent theming system that automatically extracts Material Y
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/matyouai.git
+git clone https://github.com/Sincide/matyouai.git
 cd matyouai
 
-# Run the setup script
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+# Run the simple installation script
+./install.sh
 
 # Install AI models (optional but recommended)
 ollama pull llava:7b          # For image analysis
-ollama pull wizardcoder:15b   # For config generation
 ```
 
 > **Note**: MatYouAI uses only system packages via pacman - no pip, venv, or virtual environments needed!
@@ -151,9 +149,9 @@ matyouai/
 │   ├── utils/
 │   │   └── backup.py            # Backup and versioning system
 │   └── wallpaper_picker.py      # Rofi integration
+├── install.sh                   # Simple installation script
 ├── scripts/
-│   ├── matyouai                 # Main CLI entry point
-│   └── setup.sh                 # Installation script
+│   └── matyouai                 # Main CLI entry point
 └── docs/                        # Documentation
 ```
 

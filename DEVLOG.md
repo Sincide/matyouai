@@ -531,26 +531,27 @@ The `Material/` directory likely contains:
 **Hyprland** (Complete modular structure):
 ```bash
 dotfiles/hyprland/modular/
-├── hyprland.conf      # Main file with source statements
-├── monitors.conf      # Monitor setup
-├── input.conf         # Input devices & Swedish layout  
-├── decoration.conf    # Theme-related settings (THEMEABLE)
-├── animations.conf    # Animation settings
-├── keybinds.conf      # Key bindings
-├── startup.conf       # Autostart applications
-└── windowrules.conf   # Window rules
+├── hyprland.conf          # Main with source statements
+├── monitors.conf          # Display configuration
+├── input.conf             # Input devices (Swedish layout)
+├── decoration.conf        # Theme settings (THEMEABLE)
+├── animations.conf        # Animation settings
+├── keybinds.conf          # Key bindings
+├── startup.conf           # Autostart programs
+└── windowrules.conf       # Window rules
 ```
 
 **Waybar** (Simplified modular structure):
 ```bash
 dotfiles/waybar/
-├── config             # Main waybar config
-├── style.css          # Main styles with @imports
+├── config                 # Main waybar config
+├── style.css              # Main styles with @imports
 ├── modules/
-│   ├── colors.css     # Material You colors (THEMEABLE)
-│   └── workspaces.css # Workspace styling  
+│   ├── colors.css         # Material You colors (THEMEABLE)
+│   └── workspaces.css     # Workspace styling
+│
 └── scripts/
-    └── power-menu.sh  # Fish shell power menu
+    └── power-menu.sh      # Fish shell power menu
 ```
 
 ### **System Integration** ⚙️
@@ -733,3 +734,149 @@ dotfiles/
 **This is final and non-negotiable.** Users who want to use MatYouAI must adopt our standardized structure. This ensures reliability, maintainability, and professional-grade desktop theming.
 
 **Status**: Enforced structure policy confirmed and documented. All development will proceed with this constraint. 
+
+---
+
+## 2024-12-21 - SIMPLIFIED INSTALLATION: Root install.sh Script 🚀
+
+**MAJOR SIMPLIFICATION**: Replaced complex `scripts/setup.sh` with a simple, straightforward `install.sh` in the root directory.
+
+### **New Installation Philosophy** 🎯
+
+**"Simple, not advanced"** - No complex logging, error handling, or multiple installation paths. Just install packages and symlink configs.
+
+### **New install.sh Features** ✅
+
+**🔧 Automatic yay-bin Installation**:
+- Installs yay-bin if not present
+- Clones from AUR, builds, and installs automatically
+- No manual intervention required
+
+**📦 Easy Package Management**:
+```bash
+# System packages (easy to add/remove)
+PACKAGES=(
+    "python"
+    "python-pillow"
+    "hyprland"
+    "waybar"
+    "kitty"
+    # ... just add to this array
+)
+
+# AUR packages (easy to add/remove)  
+AUR_PACKAGES=(
+    "ollama"
+    "python-materialyoucolor-git"
+    # ... just add to this array
+)
+```
+
+**🔗 Automatic Symlink Creation**:
+- Symlinks ALL `dotfiles/*` directories to `~/.config/`
+- Automatic backup of existing configs with timestamp
+- Handles special cases (wallpapers, scripts)
+- Creates `~/.local/bin/matyouai` symlink
+
+### **Installation Process** 📋
+
+**What install.sh does:**
+1. ✅ **Verify Arch Linux** - Exits if not Arch
+2. ✅ **Install yay-bin** - AUR helper installation
+3. ✅ **Install System Packages** - All pacman packages
+4. ✅ **Install AUR Packages** - All AUR packages via yay
+5. ✅ **Backup Existing Configs** - Timestamped backup directory
+6. ✅ **Create Symlinks** - All dotfiles linked to ~/.config
+7. ✅ **Setup Wallpapers** - Copy to ~/Pictures/wallpapers
+8. ✅ **Make Scripts Executable** - Ensure matyouai command works
+9. ✅ **Start Services** - Enable and start Ollama
+
+### **Simplicity Benefits** 🎯
+
+**For Users**:
+- **One command**: Just run `./install.sh`
+- **No options**: No complex command-line arguments
+- **Clear output**: Simple progress messages
+- **Automatic backup**: Existing configs safely backed up
+
+**For Developers**:
+- **Easy to modify**: Just edit the arrays to add/remove packages
+- **No complex logic**: Straightforward bash script
+- **Easy to debug**: No complex error handling or logging
+- **Maintainable**: Simple code anyone can understand
+
+### **Package Management** 📦
+
+**Adding new packages:**
+```bash
+# Add to PACKAGES array for system packages
+PACKAGES+=(
+    "new-package"
+)
+
+# Add to AUR_PACKAGES array for AUR packages  
+AUR_PACKAGES+=(
+    "new-aur-package"
+)
+```
+
+**Removing packages:**
+- Just delete the line from the appropriate array
+- Package will be skipped in future installations
+
+### **Symlink Strategy** 🔗
+
+**Automatic symlinking:**
+- Every directory in `dotfiles/` gets symlinked to `~/.config/`
+- Special handling for wallpapers (copied, not symlinked)
+- Existing configs automatically backed up before linking
+- Absolute paths used for reliable symlinks
+
+### **Old vs New Approach** ⚖️
+
+**OLD scripts/setup.sh (343 lines)**:
+- ❌ Complex logging and error handling
+- ❌ Multiple installation methods
+- ❌ Conditional logic and options
+- ❌ Wayland detection and warnings
+- ❌ Complex configuration generation
+- ❌ Multiple AUR helper detection
+
+**NEW install.sh (120 lines)**:
+- ✅ Simple package arrays
+- ✅ Direct yay-bin installation
+- ✅ Automatic symlink creation
+- ✅ Clear, straightforward flow
+- ✅ Easy to modify and maintain
+- ✅ No advanced features or complexity
+
+### **Installation Command** 💻
+
+**One simple command:**
+```bash
+./install.sh
+```
+
+**Output:**
+```
+🎨 MatYouAI Installation
+=======================
+📦 Installing yay-bin...
+📦 Installing system packages...
+📦 Installing AUR packages...
+🔗 Creating symlinks for dotfiles...
+🚀 Starting services...
+✅ Installation complete!
+```
+
+### **Result** 🎉
+
+**Perfect for fresh Arch installations:**
+- Installs everything needed for MatYouAI
+- Sets up the enforced dotfiles structure
+- Creates working Wayland desktop environment
+- Ready to use immediately after installation
+
+**Philosophy**: Simple, direct, effective. No complex features, just get the job done.
+
+**Status**: Simple installation script implemented and ready for use. Complex setup.sh is now deprecated. 
