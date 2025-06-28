@@ -1293,3 +1293,35 @@ if check_result.returncode != 0:
 ```
 
 **Status**: swww wallpaper setting now uses current API and will work with modern swww installations.
+
+## 2024-12-21 - ENHANCED SWWW ERROR DETECTION: Clear Warnings for Deprecated Commands 🔍
+
+**IMPROVEMENT**: Enhanced swww error handling to provide clear, actionable warnings instead of cryptic messages.
+
+**Problem**: Users encountering deprecated `swww init` command were getting generic error messages like "Failed to start swww daemon" instead of clear guidance about the API change.
+
+**Solution**: Added comprehensive error pattern detection in `WallpaperPicker.set_wallpaper_with_swww()`:
+
+```python
+# Before (cryptic)
+logger.error("Failed to start swww daemon")
+logger.error(f"Failed to set wallpaper: {set_result.stderr}")
+
+# After (clear and actionable)
+if "no such file or directory" in error_msg:
+    logger.error("❌ DEPRECATED SWWW DETECTED!")
+    logger.error("Your swww installation uses the old API.")
+    logger.error("OLD (deprecated): swww init")
+    logger.error("NEW (current):    swww-daemon")
+    logger.error("Please update swww: yay -S swww")
+```
+
+**Features Added**:
+- Version checking with timeout protection
+- Specific error pattern detection for deprecated commands
+- Clear OLD vs NEW command comparison
+- Actionable solutions for common issues
+- Timeout handling for hanging processes
+- Visual indicators (❌ ✅) for better UX
+
+**Status**: Users now get helpful warnings like "DEPRECATED SWWW DETECTED!" instead of cryptic error messages.

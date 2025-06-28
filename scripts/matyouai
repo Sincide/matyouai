@@ -41,12 +41,13 @@ Examples:
   %(prog)s themes                  # Show theme switcher
   %(prog)s restore theme_123       # Restore specific theme
   %(prog)s status                  # Show current status
+  %(prog)s check-swww              # Diagnose swww installation issues
         """
     )
     
     parser.add_argument(
         "action", 
-        choices=["pick", "apply", "preview", "themes", "restore", "status", "detect"],
+        choices=["pick", "apply", "preview", "themes", "restore", "status", "detect", "check-swww"],
         help="Action to perform"
     )
     
@@ -277,6 +278,70 @@ Examples:
                 for path in app_info['config_paths']:
                     writable = "✅" if Path(path).exists() and os.access(path, os.W_OK) else "❌"
                     print(f"   {writable} {path}")
+        
+        elif args.action == "check-swww":
+            # Diagnostic check for swww setup
+            import subprocess
+            
+            print("🔍 MatYouAI swww Diagnostic Check")
+            print("=" * 40)
+            
+            # Check if swww is installed
+            try:
+                result = subprocess.run(["swww", "--version"], capture_output=True, text=True, timeout=5)
+                if result.returncode == 0:
+                    print(f"✅ swww installed: {result.stdout.strip()}")
+                else:
+                    print("❌ swww installed but --version failed")
+                    print(f"   Error: {result.stderr}")
+                    print("   Try: yay -S swww")
+            except FileNotFoundError:
+                print("❌ swww not found")
+                print("   Install with: yay -S swww")
+                sys.exit(1)
+            except subprocess.TimeoutExpired:
+                print("❌ swww --version timed out")
+                print("   This may indicate system issues")
+            
+            # Check if swww-daemon exists
+            try:
+                result = subprocess.run(["which", "swww-daemon"], capture_output=True, text=True)
+                if result.returncode == 0:
+                    print("✅ swww-daemon command found")
+                else:
+                    print("❌ swww-daemon command not found")
+                    print("   Your swww may be using the old API")
+                    print("   OLD (deprecated): swww init")
+                    print("   NEW (current):    swww-daemon")
+                    print("   Update with: yay -S swww")
+            except:
+                print("❌ Could not check for swww-daemon")
+            
+            # Check if daemon is running
+            try:
+                result = subprocess.run(["pgrep", "swww-daemon"], capture_output=True)
+                if result.returncode == 0:
+                    print("✅ swww-daemon is running")
+                else:
+                    print("⚠️  swww-daemon not running")
+                    print("   Start it with: swww-daemon")
+            except:
+                print("❌ Could not check daemon status")
+            
+            # Check Wayland
+            wayland_display = os.environ.get("WAYLAND_DISPLAY")
+            if wayland_display:
+                print(f"✅ Running on Wayland (WAYLAND_DISPLAY={wayland_display})")
+            else:
+                print("❌ Not running on Wayland")
+                print("   swww requires Wayland")
+                print("   WAYLAND_DISPLAY environment variable not set")
+            
+            print("\n🔧 Troubleshooting:")
+            print("   • If you see any ❌ above, fix those issues first")
+            print("   • If you were using 'swww init', use 'swww-daemon' instead")
+            print("   • Run 'matyouai pick' to test wallpaper setting")
+            print("   • Check logs with 'matyouai pick --verbose' for detailed errors")
     
     except KeyboardInterrupt:
         print("\n❌ Operation cancelled by user")

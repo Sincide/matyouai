@@ -110,37 +110,108 @@ class WallpaperPicker:
             return None
     
     def set_wallpaper_with_swww(self, wallpaper_path: str) -> bool:
-        """Set wallpaper using swww"""
+        """Set wallpaper using swww with enhanced error detection"""
         try:
+            # First, check if swww is installed and get version info
+            version_cmd = ["swww", "--version"]
+            try:
+                version_result = subprocess.run(version_cmd, capture_output=True, text=True, timeout=5)
+                if version_result.returncode != 0:
+                    logger.error("swww is installed but --version failed. This may indicate an old or corrupted installation.")
+                    logger.error("Please reinstall swww: yay -S swww")
+                    return False
+            except subprocess.TimeoutExpired:
+                logger.error("swww --version command timed out. This may indicate system issues.")
+                return False
+            except FileNotFoundError:
+                logger.error("❌ swww not found!")
+                logger.error("Install it with: yay -S swww")
+                return False
+            
             # Check if swww daemon is running
             check_cmd = ["pgrep", "swww-daemon"]
             check_result = subprocess.run(check_cmd, capture_output=True)
             
             if check_result.returncode != 0:
-                logger.info("Starting swww daemon...")
+                logger.info("swww-daemon not running, starting it...")
+                
+                # Try to start swww-daemon (current method)
                 start_cmd = ["swww-daemon"]
-                start_result = subprocess.run(start_cmd, capture_output=True)
+                start_result = subprocess.run(start_cmd, capture_output=True, text=True, timeout=10)
                 
                 if start_result.returncode != 0:
-                    logger.error("Failed to start swww daemon")
-                    return False
+                    error_msg = start_result.stderr.lower()
+                    
+                    # Check for specific error patterns that indicate old swww usage
+                    if "no such file or directory" in error_msg or "command not found" in error_msg:
+                        logger.error("❌ DEPRECATED SWWW DETECTED!")
+                        logger.error("Your swww installation uses the old API.")
+                        logger.error("")
+                        logger.error("OLD (deprecated): swww init")
+                        logger.error("NEW (current):    swww-daemon")
+                        logger.error("")
+                        logger.error("Please update swww: yay -S swww")
+                        logger.error("If you were manually running 'swww init', use 'swww-daemon' instead.")
+                        return False
+                    elif "already running" in error_msg or "bind" in error_msg:
+                        logger.warning("swww-daemon may already be running, continuing...")
+                    else:
+                        logger.error(f"❌ Failed to start swww-daemon: {start_result.stderr}")
+                        logger.error("This may be due to:")
+                        logger.error("1. Old swww version - update with: yay -S swww")
+                        logger.error("2. Permission issues - check if you're in the right user session")
+                        logger.error("3. Display server issues - make sure you're running on Wayland")
+                        return False
+                
+                # Give daemon time to start
+                import time
+                time.sleep(1)
             
             # Set wallpaper
             set_cmd = ["swww", "img", wallpaper_path, "--transition-type", "fade"]
-            set_result = subprocess.run(set_cmd, capture_output=True, text=True)
+            set_result = subprocess.run(set_cmd, capture_output=True, text=True, timeout=15)
             
             if set_result.returncode == 0:
-                logger.info(f"Wallpaper set successfully: {wallpaper_path}")
+                logger.info(f"✅ Wallpaper set successfully: {wallpaper_path}")
                 return True
             else:
-                logger.error(f"Failed to set wallpaper: {set_result.stderr}")
+                error_msg = set_result.stderr.lower()
+                
+                # Check for specific error patterns
+                if "daemon not running" in error_msg or "connection refused" in error_msg:
+                    logger.error("❌ swww-daemon is not running or not responding")
+                    logger.error("Try manually starting it: swww-daemon")
+                    logger.error("If you were using 'swww init', that's the old deprecated command!")
+                elif "no such file" in error_msg and "wallpaper" not in error_msg:
+                    logger.error("❌ DEPRECATED SWWW COMMAND DETECTED!")
+                    logger.error("You may be using the old 'swww init' command.")
+                    logger.error("Please use 'swww-daemon' instead and update swww: yay -S swww")
+                elif "permission denied" in error_msg:
+                    logger.error(f"❌ Permission denied accessing wallpaper: {wallpaper_path}")
+                elif "not found" in error_msg and wallpaper_path in error_msg:
+                    logger.error(f"❌ Wallpaper file not found: {wallpaper_path}")
+                else:
+                    logger.error(f"❌ swww failed to set wallpaper: {set_result.stderr}")
+                    logger.error("Common causes:")
+                    logger.error("1. Old swww version - update with: yay -S swww")
+                    logger.error("2. Not running on Wayland")
+                    logger.error("3. swww-daemon not properly started")
+                
                 return False
                 
+        except subprocess.TimeoutExpired:
+            logger.error("❌ swww command timed out")
+            logger.error("This may indicate:")
+            logger.error("1. System performance issues")
+            logger.error("2. swww-daemon hanging - try killing it: pkill swww-daemon")
+            return False
         except FileNotFoundError:
-            logger.error("swww not found. Please install swww.")
+            logger.error("❌ swww command not found!")
+            logger.error("Install swww with: yay -S swww")
             return False
         except Exception as e:
-            logger.error(f"Error setting wallpaper with swww: {e}")
+            logger.error(f"❌ Unexpected error with swww: {e}")
+            logger.error("If you were using 'swww init', that's deprecated - use 'swww-daemon' instead")
             return False
     
     def launch_picker_and_apply_theme(self, theme_applicator=None, 
