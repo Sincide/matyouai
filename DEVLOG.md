@@ -1261,3 +1261,35 @@ bind = $mainMod, W, exec, matyouai pick
 - `Super + Q` → Terminal (kitty)
 
 **Status**: Wallpaper selector now accessible via Super+W keybind for immediate theming workflow.
+
+---
+
+## 2024-12-21 - SWWW COMMAND FIX: Updated to Current API 🔧
+
+**BUGFIX**: Fixed deprecated swww command usage in wallpaper picker.
+
+### **Issue Fixed** ❌
+
+**Old deprecated command:**
+```bash
+swww init  # ❌ Deprecated command
+```
+
+**New correct command:**
+```bash
+swww-daemon  # ✅ Current command
+```
+
+### **Code Updated** ✅
+
+**Wallpaper picker now uses:**
+```python
+# Check if swww daemon is running
+check_cmd = ["pgrep", "swww-daemon"]
+
+# Start daemon if not running
+if check_result.returncode != 0:
+    start_cmd = ["swww-daemon"]  # ← Fixed from "swww init"
+```
+
+**Status**: swww wallpaper setting now uses current API and will work with modern swww installations.

@@ -118,7 +118,7 @@ class WallpaperPicker:
             
             if check_result.returncode != 0:
                 logger.info("Starting swww daemon...")
-                start_cmd = ["swww", "init"]
+                start_cmd = ["swww-daemon"]
                 start_result = subprocess.run(start_cmd, capture_output=True)
                 
                 if start_result.returncode != 0:
