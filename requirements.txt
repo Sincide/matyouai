@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# Python Dependencies for MatYouAI
+# Install with: pip install -r requirements.txt
+
+# MatYouAI System Dependencies
+# Install these packages using pacman on Arch Linux
+# sudo pacman -S <package-name>
+
+# Core system dependencies
+python
+rofi-wayland
+swww
+hyprland
+
+# Python libraries (available via pacman)
+python-pillow      # Image processing and manipulation
+python-numpy       # Scientific computing and array operations
+python-scikit-learn # Machine learning algorithms (clustering)
+python-requests    # HTTP requests for AI model communication
+
+# Optional applications (for theming support)
+waybar      # Status bar
+kitty       # Terminal emulator
+fish        # Fish shell
+dunst       # Notification daemon
+
+# AI Framework (install via AUR or direct)
+# ollama      # Local AI model runner (install via yay/paru or curl script)
+
+# Installation commands:
+# sudo pacman -S python rofi-wayland swww hyprland python-pillow python-numpy python-scikit-learn python-requests waybar kitty fish dunst
+# 
+# For Ollama:
+# yay -S ollama  # or paru -S ollama
+# curl -fsSL https://ollama.ai/install.sh | sh  # direct installation
+#
+# AI Models (after ollama installation):
+# ollama pull llava:7b          # Vision model for image analysis
+# ollama pull wizardcoder:15b   # Code generation model
+# Optional: Enhanced color analysis
+# Uncomment if you want additional color science capabilities
+# colorspacious>=1.1.2
+# colour-science>=0.4.0 

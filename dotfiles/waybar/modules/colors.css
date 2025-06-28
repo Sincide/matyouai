@@ -1,0 +1,97 @@
+/* Material You Colors for Waybar */
+/* These colors will be dynamically replaced by MatYouAI theming */
+
+:root {
+    /* Primary colors */
+    --primary: #87aff6;
+    --on-primary: #ffffff;
+    --primary-container: #dde5ff;
+    --on-primary-container: #1a1c38;
+    
+    /* Secondary colors */
+    --secondary: #5d5e72;
+    --on-secondary: #ffffff;
+    --secondary-container: #e1e0f9;
+    --on-secondary-container: #1a1b2c;
+    
+    /* Tertiary colors */
+    --tertiary: #7c5295;
+    --on-tertiary: #ffffff;
+    --tertiary-container: #ffdaff;
+    --on-tertiary-container: #31114e;
+    
+    /* Surface colors */
+    --surface: #f7f2fa;
+    --on-surface: #1c1b1f;
+    --surface-dim: #d8d3db;
+    --surface-bright: #f7f2fa;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f1ecf4;
+    --surface-container: #eae7f0;
+    --surface-container-high: #e4e1ea;
+    --surface-container-highest: #dfdce5;
+    
+    /* Outline colors */
+    --outline: #767680;
+    --outline-variant: #c7c5d0;
+    
+    /* Error colors */
+    --error: #ba1a1a;
+    --on-error: #ffffff;
+    --error-container: #ffdad6;
+    --on-error-container: #410002;
+    
+    /* Background colors */
+    --background: #fffbfe;
+    --on-background: #1c1b1f;
+    
+    /* Utility colors */
+    --shadow: #000000;
+    --scrim: #000000;
+    --inverse-surface: #313033;
+    --inverse-on-surface: #f4eff7;
+    --inverse-primary: #bcc7ff;
+}
+
+/* CSS Custom Properties mapping for use in styles */
+@define-color primary var(--primary);
+@define-color on_primary var(--on-primary);
+@define-color primary_container var(--primary-container);
+@define-color on_primary_container var(--on-primary-container);
+
+@define-color secondary var(--secondary);
+@define-color on_secondary var(--on-secondary);
+@define-color secondary_container var(--secondary-container);
+@define-color on_secondary_container var(--on-secondary-container);
+
+@define-color tertiary var(--tertiary);
+@define-color on_tertiary var(--on-tertiary);
+@define-color tertiary_container var(--tertiary-container);
+@define-color on_tertiary_container var(--on-tertiary-container);
+
+@define-color surface var(--surface);
+@define-color on_surface var(--on-surface);
+@define-color surface_dim var(--surface-dim);
+@define-color surface_bright var(--surface-bright);
+@define-color surface_container_lowest var(--surface-container-lowest);
+@define-color surface_container_low var(--surface-container-low);
+@define-color surface_container var(--surface-container);
+@define-color surface_container_high var(--surface-container-high);
+@define-color surface_container_highest var(--surface-container-highest);
+
+@define-color outline var(--outline);
+@define-color outline_variant var(--outline-variant);
+
+@define-color error var(--error);
+@define-color on_error var(--on-error);
+@define-color error_container var(--error-container);
+@define-color on_error_container var(--on-error-container);
+
+@define-color background var(--background);
+@define-color on_background var(--on-background);
+
+@define-color shadow var(--shadow);
+@define-color scrim var(--scrim);
+@define-color inverse_surface var(--inverse-surface);
+@define-color inverse_on_surface var(--inverse-on-surface);
+@define-color inverse_primary var(--inverse-primary); 

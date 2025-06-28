@@ -1,0 +1,100 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments (not used in this project but good to have)
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# MatYouAI specific
+# Generated theme files and backups
+*.backup
+*.bak
+*.orig
+backups/
+.backups/
+
+# Cache directories
+.cache/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# System specific
+.directory
+desktop.ini
+ehthumbs.db
+
+# Git
+*.orig
+*.rej
+
+# Ollama models (too large for git)
+models/
+*.gguf
+
+# User-specific wallpapers (keep test wallpapers)
+wallpapers/user/
+personal_wallpapers/
+
+# Generated configuration previews
+previews/
+test_outputs/
+
+# Local development
+local_config.py
+dev_settings.json
+
+# Operating system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Fish shell history (if any gets created)
+fish_history
+.fish_history 

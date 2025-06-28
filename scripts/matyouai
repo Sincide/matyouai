@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+"""
+MatYouAI - Material You AI-Driven Theming System
+Main entry point script
+"""
+
+import argparse
+import logging
+import sys
+import os
+from pathlib import Path
+
+# Add project root to Python path
+script_dir = Path(__file__).parent
+project_root = script_dir.parent
+sys.path.insert(0, str(project_root))
+
+from src.core.theme_applicator import ThemeApplicator
+from src.wallpaper_picker import WallpaperPicker
+
+def setup_logging(verbose: bool = False):
+    """Setup logging configuration"""
+    level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="MatYouAI - AI-driven Material You theming for Arch Linux Wayland",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s pick                    # Launch wallpaper picker and apply theme
+  %(prog)s apply wall.jpg          # Apply theme from specific wallpaper
+  %(prog)s preview wall.jpg        # Preview theme without applying
+  %(prog)s themes                  # Show theme switcher
+  %(prog)s restore theme_123       # Restore specific theme
+  %(prog)s status                  # Show current status
+        """
+    )
+    
+    parser.add_argument(
+        "action", 
+        choices=["pick", "apply", "preview", "themes", "restore", "status", "detect"],
+        help="Action to perform"
+    )
+    
+    parser.add_argument(
+        "target", 
+        nargs="?",
+        help="Wallpaper path (for apply/preview) or theme ID (for restore)"
+    )
+    
+    parser.add_argument(
+        "--apps", "-a",
+        nargs="+",
+        help="Specific apps to theme (default: all detected)"
+    )
+    
+    parser.add_argument(
+        "--theme-name", "-n",
+        help="Custom theme name"
+    )
+    
+    parser.add_argument(
+        "--wallpaper-dirs", "-w",
+        nargs="+",
+        help="Additional wallpaper directories to search"
+    )
+    
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+    
+    parser.add_argument(
+        "--no-ai", 
+        action="store_true",
+        help="Disable AI models, use fallback color extraction only"
+    )
+    
+    args = parser.parse_args()
+    
+    # Setup logging
+    setup_logging(args.verbose)
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Initialize components
+        theme_applicator = ThemeApplicator()
+        wallpaper_picker = WallpaperPicker(args.wallpaper_dirs)
+        
+        if args.action == "pick":
+            # Launch wallpaper picker with theme application
+            logger.info("Launching wallpaper picker...")
+            result = wallpaper_picker.launch_picker_and_apply_theme(
+                theme_applicator=theme_applicator
+            )
+            
+            if result:
+                if result.get("success", False):
+                    print(f"✅ Theme applied successfully!")
+                    print(f"   Wallpaper: {result.get('wallpaper_path', 'N/A')}")
+                    print(f"   Applied to: {', '.join(result.get('applied_apps', []))}")
+                    if result.get('failed_apps'):
+                        print(f"   Failed: {', '.join(result.get('failed_apps', []))}")
+                else:
+                    print(f"❌ Theme application failed: {result.get('errors', ['Unknown error'])}")
+                    sys.exit(1)
+            else:
+                print("❌ Operation cancelled or failed")
+                sys.exit(1)
+        
+        elif args.action == "apply":
+            if not args.target:
+                print("❌ Wallpaper path required for apply action")
+                sys.exit(1)
+            
+            wallpaper_path = args.target
+            if not Path(wallpaper_path).exists():
+                print(f"❌ Wallpaper not found: {wallpaper_path}")
+                sys.exit(1)
+            
+            logger.info(f"Applying theme from wallpaper: {wallpaper_path}")
+            result = theme_applicator.apply_theme_from_wallpaper(
+                wallpaper_path,
+                theme_name=args.theme_name,
+                apps_to_theme=args.apps
+            )
+            
+            if result.get("success", False):
+                print(f"✅ Theme applied successfully!")
+                print(f"   Primary: {result.get('color_palette', {}).get('primary', 'N/A')}")
+                print(f"   Secondary: {result.get('color_palette', {}).get('secondary', 'N/A')}")
+                print(f"   Applied to: {', '.join(result.get('applied_apps', []))}")
+            else:
+                print(f"❌ Theme application failed: {result.get('errors', ['Unknown error'])}")
+                sys.exit(1)
+        
+        elif args.action == "preview":
+            if not args.target:
+                print("❌ Wallpaper path required for preview action")
+                sys.exit(1)
+            
+            wallpaper_path = args.target
+            if not Path(wallpaper_path).exists():
+                print(f"❌ Wallpaper not found: {wallpaper_path}")
+                sys.exit(1)
+            
+            logger.info(f"Previewing theme from wallpaper: {wallpaper_path}")
+            result = theme_applicator.preview_theme(wallpaper_path, args.apps)
+            
+            if result.get("success", False):
+                palette = result.get("color_palette", {})
+                print(f"🎨 Theme Preview:")
+                print(f"   Primary: {palette.get('primary', 'N/A')}")
+                print(f"   Secondary: {palette.get('secondary', 'N/A')}")
+                print(f"   Background: {palette.get('background', 'N/A')}")
+                print(f"   Would apply to: {', '.join(result.get('applied_apps', []))}")
+                
+                # Ask for confirmation
+                confirm = input("\nApply this theme? (y/N): ").strip().lower()
+                if confirm in ['y', 'yes']:
+                    apply_result = theme_applicator.apply_theme_from_wallpaper(
+                        wallpaper_path,
+                        theme_name=args.theme_name or f"preview_applied",
+                        apps_to_theme=args.apps
+                    )
+                    if apply_result.get("success", False):
+                        print("✅ Theme applied!")
+                    else:
+                        print(f"❌ Failed to apply theme: {apply_result.get('errors', [])}")
+                else:
+                    print("Theme preview cancelled")
+            else:
+                print(f"❌ Preview failed: {result.get('errors', ['Unknown error'])}")
+                sys.exit(1)
+        
+        elif args.action == "themes":
+            # Launch theme switcher
+            action = wallpaper_picker.create_rofi_theme_switcher(theme_applicator)
+            
+            if action == "new_wallpaper":
+                # Launch picker
+                result = wallpaper_picker.launch_picker_and_apply_theme(theme_applicator)
+                if result and result.get("success"):
+                    print("✅ New theme applied!")
+                else:
+                    print("❌ Failed to apply new theme")
+            elif action == "preview_mode":
+                # Launch picker in preview mode
+                result = wallpaper_picker.launch_picker_and_apply_theme(
+                    theme_applicator, preview_mode=True
+                )
+                if result:
+                    print("👁️ Preview mode completed")
+            elif action and action.startswith("restore:"):
+                # Restore theme
+                snapshot_id = action.split(":", 1)[1]
+                if theme_applicator.restore_theme(snapshot_id):
+                    print(f"✅ Theme restored: {snapshot_id}")
+                else:
+                    print(f"❌ Failed to restore theme: {snapshot_id}")
+            else:
+                print("❌ No action selected")
+        
+        elif args.action == "restore":
+            if not args.target:
+                print("❌ Theme ID required for restore action")
+                sys.exit(1)
+            
+            theme_id = args.target
+            logger.info(f"Restoring theme: {theme_id}")
+            
+            if theme_applicator.restore_theme(theme_id):
+                print(f"✅ Theme restored successfully: {theme_id}")
+            else:
+                print(f"❌ Failed to restore theme: {theme_id}")
+                sys.exit(1)
+        
+        elif args.action == "status":
+            # Show current status
+            print("🎨 MatYouAI Status")
+            print("=" * 50)
+            
+            # Current theme
+            current_theme = theme_applicator.get_current_theme()
+            if current_theme:
+                print(f"Current Theme: {current_theme.get('theme_name', 'Unknown')}")
+                print(f"Applied: {current_theme.get('readable_time', 'Unknown')}")
+                palette = current_theme.get('color_palette', {})
+                print(f"Primary: {palette.get('primary', 'N/A')}")
+                print(f"Secondary: {palette.get('secondary', 'N/A')}")
+            else:
+                print("Current Theme: None")
+            
+            print()
+            
+            # Detected apps
+            detected_apps = theme_applicator.get_detected_apps()
+            print(f"Detected Applications: ({len(detected_apps)})")
+            for app_name, app_info in detected_apps.items():
+                status = "✅" if app_info["writable_configs"] > 0 else "❌"
+                themer = "🤖" if app_info["has_themer"] else "🔧"
+                print(f"  {status} {themer} {app_name} ({app_info['writable_configs']}/{app_info['config_count']} writable)")
+            
+            print()
+            
+            # Available themes
+            themes = theme_applicator.get_available_themes()
+            print(f"Available Themes: ({len(themes)})")
+            for theme in themes[:5]:  # Show last 5
+                print(f"  📅 {theme.get('theme_name', 'Unknown')} ({theme.get('readable_time', 'Unknown')})")
+            
+            if len(themes) > 5:
+                print(f"  ... and {len(themes) - 5} more")
+        
+        elif args.action == "detect":
+            # Show detection details
+            print("🔍 Configuration Detection")
+            print("=" * 50)
+            
+            detected_apps = theme_applicator.get_detected_apps()
+            
+            for app_name, app_info in detected_apps.items():
+                print(f"\n📱 {app_name.upper()}")
+                print(f"   Configs found: {app_info['config_count']}")
+                print(f"   Writable: {app_info['writable_configs']}")
+                print(f"   Has dedicated themer: {'Yes' if app_info['has_themer'] else 'No (AI fallback)'}")
+                
+                for path in app_info['config_paths']:
+                    writable = "✅" if Path(path).exists() and os.access(path, os.W_OK) else "❌"
+                    print(f"   {writable} {path}")
+    
+    except KeyboardInterrupt:
+        print("\n❌ Operation cancelled by user")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        print(f"❌ Unexpected error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main() 

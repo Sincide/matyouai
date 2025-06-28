@@ -1,0 +1,146 @@
+/* Workspace Module Styles */
+/* Comprehensive workspace theming with Material You colors */
+
+#workspaces {
+    background-color: transparent;
+    margin: 0 4px;
+    padding: 0;
+}
+
+#workspaces button {
+    background-color: @surface_container;
+    color: @on_surface;
+    border: 1px solid @outline_variant;
+    border-radius: 8px;
+    margin: 2px;
+    padding: 4px 8px;
+    min-width: 20px;
+    transition: all 0.3s cubic-bezier(0.55, 0.0, 0.1, 1.0);
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* Active workspace */
+#workspaces button.active {
+    background-color: @primary;
+    color: @on_primary;
+    border-color: @primary;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+
+/* Hover effects */
+#workspaces button:hover {
+    background-color: @primary_container;
+    color: @on_primary_container;
+    border-color: @primary;
+    transform: scale(1.02);
+}
+
+/* Urgent workspace */
+#workspaces button.urgent {
+    background-color: @error;
+    color: @on_error;
+    border-color: @error;
+    animation: urgent-pulse 2s ease-in-out infinite;
+}
+
+/* Visible workspace (has windows) */
+#workspaces button.visible {
+    background-color: @secondary_container;
+    color: @on_secondary_container;
+    border-color: @secondary;
+}
+
+/* Focused workspace (active on current monitor) */
+#workspaces button.focused {
+    background-color: @primary;
+    color: @on_primary;
+    border-color: @primary;
+    box-shadow: 0 0 8px @primary;
+}
+
+/* Empty workspace */
+#workspaces button.empty {
+    background-color: @surface_container_low;
+    color: @outline;
+    border-color: @outline_variant;
+    opacity: 0.6;
+}
+
+/* Persistent workspace (defined in config) */
+#workspaces button.persistent {
+    background-color: @surface_container;
+    color: @on_surface;
+    border-color: @outline;
+}
+
+/* Special workspace */
+#workspaces button.special {
+    background-color: @tertiary_container;
+    color: @on_tertiary_container;
+    border-color: @tertiary;
+    border-radius: 50%;
+}
+
+/* Workspace animations */
+@keyframes urgent-pulse {
+    0% {
+        box-shadow: 0 0 0 0 @error;
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(186, 26, 26, 0.4);
+        transform: scale(1.1);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(186, 26, 26, 0);
+        transform: scale(1);
+    }
+}
+
+/* Workspace number styling */
+#workspaces button label {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: bold;
+}
+
+/* Custom workspace icons (if using icon format) */
+#workspaces button[data-workspace="1"] {
+    /* Web workspace */
+}
+
+#workspaces button[data-workspace="2"] {
+    /* Code workspace */
+}
+
+#workspaces button[data-workspace="3"] {
+    /* Terminal workspace */
+}
+
+#workspaces button[data-workspace="4"] {
+    /* Files workspace */
+}
+
+#workspaces button[data-workspace="5"] {
+    /* Media workspace */
+}
+
+/* Multi-monitor workspace styling */
+#workspaces button.output-primary {
+    border-bottom: 3px solid @primary;
+}
+
+#workspaces button.output-secondary {
+    border-bottom: 3px solid @secondary;
+}
+
+/* Workspace tooltip customization */
+#workspaces button tooltip {
+    background-color: @inverse_surface;
+    color: @inverse_on_surface;
+    border: 1px solid @outline;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+} 

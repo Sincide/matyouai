@@ -1,0 +1,169 @@
+/* Main Waybar Styles - Material You Theme */
+/* Import modular styles */
+@import "modules/colors.css";
+@import "modules/workspaces.css";
+
+/* Main window styling */
+window#waybar {
+    background-color: @surface;
+    color: @on_surface;
+    border-bottom: 3px solid @primary;
+    border-radius: 0 0 8px 8px;
+    font-family: "JetBrains Mono", "Font Awesome 6 Free";
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+/* Tooltip styling */
+tooltip {
+    background-color: @surface_container;
+    color: @on_surface;
+    border: 1px solid @outline;
+    border-radius: 8px;
+    font-family: "JetBrains Mono";
+}
+
+/* Module base styling */
+.modules-left,
+.modules-center,
+.modules-right {
+    margin: 4px;
+}
+
+.modules-left > widget:first-child > #workspaces {
+    margin-left: 8px;
+}
+
+.modules-right > widget:last-child > #tray {
+    margin-right: 8px;
+}
+
+/* Generic module styling */
+#window,
+#clock,
+#network,
+#bluetooth,
+#pulseaudio,
+#battery,
+#tray,
+#custom-power {
+    background-color: @surface_container;
+    color: @on_surface;
+    padding: 4px 12px;
+    margin: 2px 4px;
+    border-radius: 8px;
+    border: 1px solid @outline_variant;
+    transition: all 0.3s ease;
+}
+
+/* Hover effects */
+#window:hover,
+#clock:hover,
+#network:hover,
+#bluetooth:hover,
+#pulseaudio:hover,
+#battery:hover,
+#custom-power:hover {
+    background-color: @surface_container_high;
+    border-color: @primary;
+}
+
+/* Window title */
+#window {
+    background-color: @primary_container;
+    color: @on_primary_container;
+    font-weight: bold;
+}
+
+/* Clock styling */
+#clock {
+    background-color: @secondary_container;
+    color: @on_secondary_container;
+    font-weight: bold;
+}
+
+/* Network module */
+#network {
+    color: @primary;
+}
+
+#network.disconnected {
+    background-color: @error_container;
+    color: @on_error_container;
+}
+
+/* Bluetooth module */
+#bluetooth {
+    color: @secondary;
+}
+
+#bluetooth.disabled {
+    color: @outline;
+}
+
+/* Audio module */
+#pulseaudio {
+    color: @tertiary;
+}
+
+#pulseaudio.muted {
+    background-color: @error_container;
+    color: @on_error_container;
+}
+
+/* Battery module */
+#battery {
+    color: @secondary;
+}
+
+#battery.charging {
+    background-color: @tertiary_container;
+    color: @on_tertiary_container;
+}
+
+#battery.warning:not(.charging) {
+    background-color: @secondary_container;
+    color: @on_secondary_container;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+#battery.critical:not(.charging) {
+    background-color: @error;
+    color: @on_error;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+/* Power button */
+#custom-power {
+    background-color: @error_container;
+    color: @on_error_container;
+    font-size: 16px;
+    padding: 4px 8px;
+}
+
+#custom-power:hover {
+    background-color: @error;
+    color: @on_error;
+}
+
+/* System tray */
+#tray {
+    background-color: @surface_container_high;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @primary;
+}
+
+/* Animations */
+@keyframes blink {
+    to {
+        background-color: @surface;
+        color: @on_surface;
+    }
+} 
