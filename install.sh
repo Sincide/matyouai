@@ -14,6 +14,10 @@ if [ ! -f /etc/arch-release ]; then
     exit 1
 fi
 
+# Install prerequisites for yay and hardware detection
+echo "📦 Installing prerequisites..."
+sudo pacman -S --needed --noconfirm base-devel git pciutils
+
 # Check for AMD GPU
 echo "🔍 Checking for AMD GPU..."
 if ! lspci | grep -i "VGA" | grep -i "AMD\|ATI" > /dev/null; then
@@ -40,7 +44,7 @@ else
     echo "✅ yay already installed"
 fi
 
-# System packages (easy to add/remove)
+# All packages (yay handles both official repos and AUR)
 PACKAGES=(
     # Core dependencies
     "python"
@@ -56,39 +60,29 @@ PACKAGES=(
     "rocm-core"
     "rocm-hip-runtime"
     "rocm-opencl-runtime"
+    "rocm-smi-lib"
+    "hip-runtime-amd"
     
     # Wayland desktop
     "hyprland"
     "waybar"
     "kitty"
-    "rofi-wayland"
+    "rofi"
     "dunst"
     "swww"
     
     # Shell and utilities
     "fish"
-    "git"
-)
-
-# AUR packages (easy to add/remove)
-AUR_PACKAGES=(
+    
+    # AI and theming
     "ollama"
     "python-materialyoucolor-git"
     "python-jinja"
-    "rocm-smi-lib"
-    "hip-runtime-amd"
 )
 
-# Install system packages
-echo "📦 Installing system packages..."
+# Install all packages with yay (handles both official and AUR)
+echo "📦 Installing all packages with yay..."
 for package in "${PACKAGES[@]}"; do
-    echo "  Installing: $package"
-    sudo pacman -S --noconfirm "$package" || echo "  ⚠️  Failed to install $package"
-done
-
-# Install AUR packages
-echo "📦 Installing AUR packages..."
-for package in "${AUR_PACKAGES[@]}"; do
     echo "  Installing: $package"
     yay -S --noconfirm "$package" || echo "  ⚠️  Failed to install $package"
 done
