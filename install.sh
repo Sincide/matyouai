@@ -54,6 +54,7 @@ AUR_PACKAGES=(
     "ollama"
     "python-materialyoucolor-git"
     "python-jinja"
+    "cursor-bin"
 )
 
 # Install system packages

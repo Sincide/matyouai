@@ -530,15 +530,16 @@ The `Material/` directory likely contains:
 
 **Hyprland** (Complete modular structure):
 ```bash
-dotfiles/hyprland/modular/
-├── hyprland.conf          # Main with source statements
-├── monitors.conf          # Display configuration
-├── input.conf             # Input devices (Swedish layout)
-├── decoration.conf        # Theme settings (THEMEABLE)
-├── animations.conf        # Animation settings
-├── keybinds.conf          # Key bindings
-├── startup.conf           # Autostart programs
-└── windowrules.conf       # Window rules
+dotfiles/hypr/
+├── hyprland.conf          # Main file with source statements
+└── conf/                  # Configuration modules subdirectory
+    ├── monitors.conf      # Display configuration
+    ├── input.conf         # Input devices (Swedish layout)
+    ├── decoration.conf    # Theme settings (THEMEABLE)
+    ├── animations.conf    # Animation settings
+    ├── keybinds.conf      # Key bindings
+    ├── startup.conf       # Autostart programs
+    └── windowrules.conf   # Window rules
 ```
 
 **Waybar** (Simplified modular structure):
@@ -642,15 +643,16 @@ dotfiles/waybar/
 
 ```
 dotfiles/
-├── hyprland/modular/           # ONLY modular hyprland allowed
-│   ├── hyprland.conf          # Main with source statements
-│   ├── monitors.conf          # Display configuration
-│   ├── input.conf             # Input devices (Swedish layout)
-│   ├── decoration.conf        # Theme settings (THEMEABLE)
-│   ├── animations.conf        # Animation settings
-│   ├── keybinds.conf          # Key bindings
-│   ├── startup.conf           # Autostart programs
-│   └── windowrules.conf       # Window rules
+├── hypr/                       # ONLY hypr (correct Hyprland directory name)
+│   ├── hyprland.conf          # Main file with source statements
+│   └── conf/                  # Configuration modules subdirectory
+│       ├── monitors.conf      # Display configuration
+│       ├── input.conf         # Input devices (Swedish layout)
+│       ├── decoration.conf    # Theme settings (THEMEABLE)
+│       ├── animations.conf    # Animation settings
+│       ├── keybinds.conf      # Key bindings
+│       ├── startup.conf       # Autostart programs
+│       └── windowrules.conf   # Window rules
 ├── waybar/                    # ONLY unified waybar structure
 │   ├── config                 # Main waybar config
 │   ├── style.css              # Main styles with @imports
@@ -669,6 +671,7 @@ dotfiles/
 
 **These are permanently removed and will NEVER be supported:**
 - ❌ `hyprland/simple/` - Single-file configs not allowed
+- ❌ `hyprland/modular/` - Replaced with hypr/conf/ structure
 - ❌ `waybar/single/` - Simple waybar not allowed
 - ❌ `waybar/multi-instance/` - Complex multi-instance not allowed
 - ❌ Any other alternative structures
@@ -879,4 +882,102 @@ AUR_PACKAGES+=(
 
 **Philosophy**: Simple, direct, effective. No complex features, just get the job done.
 
-**Status**: Simple installation script implemented and ready for use. Complex setup.sh is now deprecated. 
+**Status**: Simple installation script implemented and ready for use. Complex setup.sh is now deprecated.
+
+---
+
+## 2024-12-21 - HYPRLAND STRUCTURE CORRECTION: hypr/conf/ Organization 🏗️
+
+**STRUCTURE FIX**: Corrected Hyprland directory structure to match actual Hyprland conventions and improve organization.
+
+### **Issue Identified** ❌
+
+**Previous structure was incorrect:**
+```bash
+dotfiles/hyprland/modular/      # Wrong directory name
+├── hyprland.conf              # Main file mixed with modules
+├── decoration.conf
+├── keybinds.conf
+└── ...                        # All files in same directory
+```
+
+**Problems:**
+- ❌ Hyprland uses `~/.config/hypr/` not `~/.config/hyprland/`
+- ❌ No organization between main file and modules
+- ❌ Flat structure difficult to navigate
+
+### **Corrected Structure** ✅
+
+**New proper organization:**
+```bash
+dotfiles/hypr/                 # Correct Hyprland directory name
+├── hyprland.conf             # Main file in root
+└── conf/                     # Clean separation of modules
+    ├── monitors.conf         # Display configuration
+    ├── input.conf            # Input devices (Swedish layout)
+    ├── decoration.conf       # Theme settings (THEMEABLE)
+    ├── animations.conf       # Animation settings
+    ├── keybinds.conf         # Key bindings
+    ├── startup.conf          # Autostart programs
+    └── windowrules.conf      # Window rules
+```
+
+### **Updated Source Statements** 🔧
+
+**Main hyprland.conf now sources from conf/ subdirectory:**
+```bash
+# Core configuration modules
+source = ~/.config/hypr/conf/monitors.conf
+source = ~/.config/hypr/conf/input.conf
+source = ~/.config/hypr/conf/decoration.conf
+source = ~/.config/hypr/conf/animations.conf
+source = ~/.config/hypr/conf/keybinds.conf
+source = ~/.config/hypr/conf/startup.conf
+source = ~/.config/hypr/conf/windowrules.conf
+```
+
+### **Benefits of New Structure** 🎯
+
+**Professional Organization:**
+- ✅ **Correct naming**: `hypr/` matches Hyprland's standard
+- ✅ **Clear separation**: Main file vs configuration modules
+- ✅ **Scalable**: Easy to add new module categories
+- ✅ **Intuitive**: Logical organization for users
+
+**Technical Improvements:**
+- ✅ **Easier navigation**: Modules grouped in dedicated folder
+- ✅ **Better theming**: Clear separation of themeable vs non-themeable
+- ✅ **Future-proof**: Structure supports additional organization levels
+- ✅ **Standard compliance**: Follows Hyprland community conventions
+
+### **Migration Applied** 🔄
+
+**Automated restructuring:**
+1. ✅ Renamed `dotfiles/hyprland/` → `dotfiles/hypr/`
+2. ✅ Renamed `dotfiles/hypr/modular/` → `dotfiles/hypr/conf/`
+3. ✅ Moved `hyprland.conf` to root of `hypr/` directory
+4. ✅ Updated all source statements to point to `conf/` subdirectory
+5. ✅ Updated documentation and enforced structure requirements
+
+### **Symlink Result** 🔗
+
+**After install.sh execution:**
+```bash
+~/.config/hypr/                # Symlinked to dotfiles/hypr/
+├── hyprland.conf             # Main Hyprland configuration
+└── conf/                     # Configuration modules
+    ├── monitors.conf
+    ├── input.conf
+    ├── decoration.conf       # ← THEMEABLE
+    └── ...
+```
+
+### **Impact on MatYouAI** 🎨
+
+**Theming integration:**
+- ✅ **Config Detection**: Updated to detect `hypr/` structure
+- ✅ **Hyprland Themer**: Will target `conf/decoration.conf` for colors
+- ✅ **File Organization**: Better separation of themeable vs non-themeable configs
+- ✅ **User Experience**: More professional and intuitive structure
+
+**Status**: Hyprland structure corrected to professional standard with proper organization and naming conventions. All documentation updated to reflect new mandatory structure. 
