@@ -980,4 +980,127 @@ source = ~/.config/hypr/conf/windowrules.conf
 - ✅ **File Organization**: Better separation of themeable vs non-themeable configs
 - ✅ **User Experience**: More professional and intuitive structure
 
-**Status**: Hyprland structure corrected to professional standard with proper organization and naming conventions. All documentation updated to reflect new mandatory structure. 
+**Status**: Hyprland structure corrected to professional standard with proper organization and naming conventions. All documentation updated to reflect new mandatory structure.
+
+---
+
+## 2024-12-21 - AMD GPU SPECIALIZATION: ROCm Support & Fish Shell Default 🎮
+
+**SPECIALIZATION**: Updated install script to specifically target AMD GPUs with ROCm support and fish shell as default.
+
+### **AMD GPU Focus** 🎯
+
+**System Requirements:**
+- ✅ **AMD GPU only** - Script checks for AMD/ATI GPUs and exits for NVIDIA
+- ✅ **ROCm support** - Full ROCm stack for Ollama GPU acceleration
+- ✅ **Fish shell** - Set as default shell with proper environment configuration
+
+**GPU Detection:**
+```bash
+# Check for AMD GPU
+if ! lspci | grep -i "VGA" | grep -i "AMD\|ATI" > /dev/null; then
+    echo "❌ Error: No AMD GPU detected. This script is optimized for AMD GPUs only."
+    echo "   For NVIDIA GPUs, you'll need different drivers and CUDA setup."
+    exit 1
+fi
+```
+
+### **ROCm Package Installation** 📦
+
+**System packages added:**
+```bash
+# AMD GPU and ROCm support
+"mesa"                    # Mesa drivers
+"vulkan-radeon"          # Vulkan support
+"xf86-video-amdgpu"      # AMDGPU driver
+"rocm-core"              # ROCm core components
+"rocm-hip-runtime"       # HIP runtime
+"rocm-opencl-runtime"    # OpenCL support
+```
+
+**AUR packages added:**
+```bash
+"rocm-smi-lib"           # ROCm system management
+"hip-runtime-amd"        # Additional HIP runtime components
+```
+
+### **Fish Shell Configuration** 🐟
+
+**Default shell setup:**
+```bash
+# Set fish as default shell
+chsh -s /usr/bin/fish
+
+# Fish environment configuration
+set -gx HSA_OVERRIDE_GFX_VERSION 10.3.0
+set -gx ROC_ENABLE_PRE_VEGA 1
+set -gx OLLAMA_GPU_DRIVER rocm
+fish_add_path ~/.local/bin
+```
+
+**No more bash configuration:**
+- ❌ Removed .bashrc setup completely
+- ✅ Only fish shell configuration now
+- ✅ Automatic PATH management with fish_add_path
+- ✅ Proper fish environment variables
+
+### **User Group Configuration** 👥
+
+**GPU access setup:**
+```bash
+sudo usermod -a -G render,video "$USER"
+```
+
+**Benefits:**
+- ✅ **Direct GPU access** for ROCm applications
+- ✅ **Ollama GPU acceleration** working out of the box
+- ✅ **No permission issues** with GPU devices
+
+### **Installation Flow** 📋
+
+**Updated installation process:**
+1. ✅ **Check Arch Linux** - Verify distribution
+2. ✅ **Check AMD GPU** - Exit if NVIDIA detected
+3. ✅ **Install yay-bin** - AUR helper
+4. ✅ **Install packages** - System + ROCm + AUR packages
+5. ✅ **Symlink dotfiles** - All configs to ~/.config/
+6. ✅ **Set fish shell** - As default shell
+7. ✅ **Configure environment** - ROCm variables in fish
+8. ✅ **Add user groups** - render,video for GPU access
+9. ✅ **Start Ollama** - Service enabled and started
+
+### **Reboot Required** ⚠️
+
+**Post-installation requirements:**
+- 🔄 **Reboot required** for GPU groups and shell change
+- 🎮 **GPU acceleration** available after reboot
+- 🐟 **Fish shell** active by default
+- 🤖 **Ollama models** can use GPU acceleration
+
+### **Benefits** 🚀
+
+**Simplified setup:**
+- ✅ **AMD GPU optimized** - No NVIDIA complexity
+- ✅ **ROCm ready** - GPU acceleration for AI models
+- ✅ **Fish shell native** - No bash compatibility needed
+- ✅ **One-command install** - Everything configured automatically
+
+**Performance gains:**
+- ✅ **GPU-accelerated Ollama** - Faster AI model inference
+- ✅ **Proper drivers** - Optimized AMD GPU performance
+- ✅ **ROCm integration** - Professional GPU compute support
+
+### **Target Users** 🎯
+
+**Perfect for:**
+- AMD GPU owners wanting AI acceleration
+- Fresh Arch Linux installations
+- Users committed to fish shell
+- ROCm development environments
+
+**Not for:**
+- NVIDIA GPU users (different setup required)
+- Bash shell users (fish shell is mandatory)
+- Systems without dedicated AMD GPUs
+
+**Status**: Install script specialized for AMD GPUs with ROCm support and fish shell as mandatory default. Perfect for GPU-accelerated AI workloads on AMD hardware. 
